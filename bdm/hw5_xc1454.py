@@ -13,8 +13,8 @@ def processTrips(pid, records):
 	import shapely.geometry as geom
 
 	if pid==0:
-	next(records)
-	#borough = {0: [], 1: [], 2: [], 3: [], 4: []}
+	    next(records)
+	    
 	counts = {}
 	import rtree
 	reader = csv.reader(records)
@@ -27,35 +27,35 @@ def processTrips(pid, records):
 
 	index_start = rtree.Rtree()
 	for idx,geometry in enumerate(neighborhoods.geometry):
-	index_start.insert(idx, geometry.bounds)
+	    index_start.insert(idx, geometry.bounds)
 
 	index_end = rtree.Rtree()
 	for idx,geometry in enumerate(boroughs.geometry):
-	index_end.insert(idx, geometry.bounds)
+	    index_end.insert(idx, geometry.bounds)
 
 	for row in reader:
-	try:
-	    p_start = geom.Point(proj(float(row[5]), float(row[6])))
-	    p_end = geom.Point(proj(float(row[9]), float(row[10])))
-	except:
-	    continue
-
-	match_end = None
-	for idx in index_end.intersection((p_end.x, p_end.y, p_end.x, p_end.y)):
-	    shape = boroughs.geometry[idx]
-	    if shape.contains(p_end):
-		match_end = idx
-		break
-	if match_end:
-	    match_start = None
-	    for idx in index_start.intersection((p_start.x, p_start.y, p_start.x, p_start.y)):
-		shape = neighborhoods.geometry[idx]
-		if shape.contains(p_start):
-		    match_start = idx
-		    break
-	    if match_start:
-		#counts[match_start] = counts.get(match_start, 0) + 1
-		counts[(match_start, match_end)] = counts.get((match_start, match_end), 0) + 1
+	    try:
+	        p_start = geom.Point(proj(float(row[5]), float(row[6])))
+	        p_end = geom.Point(proj(float(row[9]), float(row[10])))
+	    except:
+	        continue
+	    
+	    match_end = None
+	    for idx in index_end.intersection((p_end.x, p_end.y, p_end.x, p_end.y)):
+	        shape = boroughs.geometry[idx]
+	        if shape.contains(p_end):
+	            match_end = idx
+	            break
+	    if match_end:
+	        match_start = None
+	        for idx in index_start.intersection((p_start.x, p_start.y, p_start.x, p_start.y)):
+	            shape = neighborhoods.geometry[idx]
+	            if shape.contains(p_start):
+	                match_start = idx
+	                break
+	        if match_start:
+	            #counts[match_start] = counts.get(match_start, 0) + 1
+	            counts[(match_start, match_end)] = counts.get((match_start, match_end), 0) + 1
 	return counts.items()
 
 
