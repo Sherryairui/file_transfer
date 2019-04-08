@@ -27,18 +27,18 @@ def processTrips(pid, records):
     reader = csv.reader(records)
     proj = pyproj.Proj(init="epsg:2263", preserve_units=True)
     shapefile_start = 'neighborhoods.geojson'
-    shapefile_end = 'boroughs.geojson'   
+    #shapefile_end = 'boroughs.geojson'   
 
     neighborhoods = gpd.read_file(shapefile_start).to_crs(fiona.crs.from_epsg(2263))
-    boroughs = gpd.read_file(shapefile_end).to_crs(fiona.crs.from_epsg(2263))
+    #boroughs = gpd.read_file(shapefile_end).to_crs(fiona.crs.from_epsg(2263))
 
     index_start = rtree.Rtree()
     for idx,geometry in enumerate(neighborhoods.geometry):
         index_start.insert(idx, geometry.bounds)
 
-    index_end = rtree.Rtree()
-    for idx,geometry in enumerate(boroughs.geometry):
-        index_end.insert(idx, geometry.bounds)
+    # index_end = rtree.Rtree()
+    # for idx,geometry in enumerate(boroughs.geometry):
+    #     index_end.insert(idx, geometry.bounds)
 
     for row in reader:
         try:
@@ -48,10 +48,10 @@ def processTrips(pid, records):
             continue
         
         match_end = None
-        for idx in index_end.intersection((p_end.x, p_end.y, p_end.x, p_end.y)):
-            shape = boroughs.geometry[idx]
+        for idx in index_start.intersection((p_end.x, p_end.y, p_end.x, p_end.y)):
+            shape = neighborhoods.geometry[idx]
             if shape.contains(p_end):
-                match_end = boroughs['boroname'][idx]
+                match_end = neighborhoods['borough'][idx]
                 break
         if match_end:
             match_start = None
