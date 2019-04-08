@@ -51,17 +51,17 @@ def processTrips(pid, records):
         for idx in index_end.intersection((p_end.x, p_end.y, p_end.x, p_end.y)):
             shape = boroughs.geometry[idx]
             if shape.contains(p_end):
-                match_end = idx
+                match_end = boroughs['boroname'][idx]
                 break
         if match_end:
             match_start = None
             for idx in index_start.intersection((p_start.x, p_start.y, p_start.x, p_start.y)):
                 shape = neighborhoods.geometry[idx]
                 if shape.contains(p_start):
-                    match_start = idx
+                    match_start = neighborhoods['neighborhood'][idx]
                     break
             if match_start:
-                yield((match_start, match_end), 0)
+                yield((match_start, match_end), 1)
                 #counts[match_start] = counts.get(match_start, 0) + 1
                 #counts[(match_start, match_end)] = counts.get((match_start, match_end), 0) + 1
     #return counts.items()
@@ -75,10 +75,11 @@ if __name__ == "__main__":
     #boroughs = readGeoFile(shapefile)
 
     sc = SparkContext()
-    rdd = sc.textFile('/tmp/bdm/yellow_tripdata_2011-05.csv')
+    rdd = sc.textFile('yellow.csv')
     #.map(lambda x: (boroughs['boroname'][x[0][1]], (neighborhoods['neighborhood'][x[0][0]], x[1]))) \
     counts = rdd.mapPartitionsWithIndex(processTrips) \
                 .reduceByKey(lambda x,y: x+y) \
+                .map(lambda x: (x[0][1], (x[0][0], x[1]))) \
                 .reduceByKey(lambda x,y: x+y).collect()
 
     for i in range(0, len(counts)):
