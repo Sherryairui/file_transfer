@@ -75,7 +75,7 @@ if __name__ == "__main__":
     #boroughs = readGeoFile(shapefile)
 
     sc = SparkContext()
-    rdd = sc.textFile('yellow.csv')
+    rdd = sc.textFile('/tmp/bdm/yellow_tripdata_2011-05.csv')
     #.map(lambda x: (boroughs['boroname'][x[0][1]], (neighborhoods['neighborhood'][x[0][0]], x[1]))) \
     counts = rdd.mapPartitionsWithIndex(processTrips) \
                 .reduceByKey(lambda x,y: x+y) \
