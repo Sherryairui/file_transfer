@@ -60,12 +60,12 @@ def processTrips(pid, records):
 
 
 if __name__ == "__main__": 
-	import geopandas as gpd
-	shapefile = 'neighborhoods.geojson'
-	neighborhoods = gpd.read_file(shapefile).to_crs(fiona.crs.from_epsg(2263))
+# 	import geopandas as gpd
+# 	shapefile = 'neighborhoods.geojson'
+# 	neighborhoods = gpd.read_file(shapefile).to_crs(fiona.crs.from_epsg(2263))
 
-	shapefile = 'boroughs.geojson'
-	boroughs = gpd.read_file(shapefile).to_crs(fiona.crs.from_epsg(2263))
+# 	shapefile = 'boroughs.geojson'
+# 	boroughs = gpd.read_file(shapefile).to_crs(fiona.crs.from_epsg(2263))
 
 	sc = SparkContext()
 	rdd = sc.textFile('hdfs:///tmp/bdm/yellow_tripdata_2011-05.csv')
