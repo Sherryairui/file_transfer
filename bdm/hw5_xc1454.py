@@ -68,17 +68,17 @@ def processTrips(pid, records):
 
 
 if __name__ == "__main__": 
-    shapefile = 'neighborhoods.geojson'
-    neighborhoods = readGeoFile(shapefile)
+    #shapefile = 'neighborhoods.geojson'
+    #neighborhoods = readGeoFile(shapefile)
 
-    shapefile = 'boroughs.geojson'
-    boroughs = readGeoFile(shapefile)
+    #shapefile = 'boroughs.geojson'
+    #boroughs = readGeoFile(shapefile)
 
     sc = SparkContext()
     rdd = sc.textFile('yellow.csv')
     counts = rdd.mapPartitionsWithIndex(processTrips) \
                 .reduceByKey(lambda x,y: x+y) \
-                .map(lambda x: (boroughs['boroname'][x[0][1]], (neighborhoods['neighborhood'][x[0][0]], x[1]))) \
+                #.map(lambda x: (boroughs['boroname'][x[0][1]], (neighborhoods['neighborhood'][x[0][0]], x[1]))) \
                 .reduceByKey(lambda x,y: x+y).collect()
 
     for i in range(0, len(counts)):
