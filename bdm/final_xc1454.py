@@ -31,7 +31,7 @@ def processDrugs(pid, records):
     importlib.reload(sys)
     
     #reload(sys)
-    sys.setdefaultencoding('utf-8')
+    #sys.setdefaultencoding('utf-8')
     
     proj = pyproj.Proj(init="epsg:2263", preserve_units=True)    
     index, zones = createIndex('hdfs:///tmp/bdm/500cities_tracts.geojson')  
