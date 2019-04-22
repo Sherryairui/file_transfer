@@ -26,8 +26,11 @@ def processDrugs(pid, records):
     import csv
     import pyproj
     import shapely.geometry as geom
+    import importlib
     import sys
-    reload(sys)
+    importlib.reload(sys)
+    
+    #reload(sys)
     sys.setdefaultencoding('utf-8')
     
     proj = pyproj.Proj(init="epsg:2263", preserve_units=True)    
