@@ -26,11 +26,12 @@ def processDrugs(pid, records):
     import csv
     import pyproj
     import shapely.geometry as geom
-    import importlib
     import sys
-    importlib.reload(sys)
-    
     #reload(sys)
+    import importlib
+    importlib.reload(sys)
+
+
     #sys.setdefaultencoding('utf-8')
     
     proj = pyproj.Proj(init="epsg:2263", preserve_units=True)    
@@ -60,7 +61,6 @@ def processDrugs(pid, records):
 if __name__ == "__main__": 
 
 	sc = SparkContext()
-	#print('1')
 	rdd = sc.textFile('hdfs:///tmp/bdm/tweets-100m.csv')
 	counts = rdd.mapPartitionsWithIndex(processDrugs) \
 	            .reduceByKey(lambda x,y: x+y) \
