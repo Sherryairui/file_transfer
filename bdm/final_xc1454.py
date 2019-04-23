@@ -35,10 +35,10 @@ def processDrugs(pid, records):
     #sys.setdefaultencoding('utf-8')
     
     proj = pyproj.Proj(init="epsg:2263", preserve_units=True)    
-    index, zones = createIndex('hdfs:///tmp/bdm/500cities_tracts.geojson')  
+    index, zones = createIndex('500cities_tracts.geojson')  
     
-    drug_word_1 = readTxt('hdfs:///tmp/bdm/drug_illegal.txt')
-    drug_word_2 = readTxt('hdfs:///tmp/bdm/drug_sched2.txt')
+    drug_word_1 = readTxt('drug_illegal.txt')
+    drug_word_2 = readTxt('drug_sched2.txt')
     
     drug_words = drug_word_1+drug_word_2
     
