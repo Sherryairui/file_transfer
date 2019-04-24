@@ -109,7 +109,7 @@ if __name__ == "__main__":
 	counts = rdd.mapPartitionsWithIndex(processDrugs) \
 	            .reduceByKey(lambda x,y: x+y) \
 	            .map(lambda x: (x[0][0], float(x[1])/x[0][1])) \
-                .sortByKey(ascending=True).saveAsTextFile("geo_ratio.txt")
+                .sortByKey(ascending=True).saveAsTextFile("hdfs:///tmp/bdm/geo_ratio.txt")
                 #.collect()
 
     #for item in counts:
