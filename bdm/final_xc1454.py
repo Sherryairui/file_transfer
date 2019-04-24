@@ -33,11 +33,12 @@ def createIndex(shapefile):
     return (index, zones)
 
 def findZone(p, index, zones):
-    match = index.intersection((p.x, p.y, p.x, p.y))
-    for idx in match:
-        if zones.geometry[idx].contains(p):
-            return idx
-    return None
+    if p.is_valid:
+        match = index.intersection((p.x, p.y, p.x, p.y))
+        for idx in match:
+            if zones.geometry[idx].contains(p):
+                return idx
+        return None
 
 def processTwitter(row):
     import string
