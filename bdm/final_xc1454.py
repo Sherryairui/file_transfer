@@ -108,5 +108,6 @@ if __name__ == "__main__":
 	rdd = sc.textFile('hdfs:///tmp/bdm/tweets-100m.csv')
 	counts = rdd.mapPartitionsWithIndex(processDrugs) \
 	            .reduceByKey(lambda x,y: x+y) \
-	            .map(lambda x: (x[0][0], float(x[1])/x[0][1])).collect()
+	            .map(lambda x: (x[0][0], float(x[1])/x[0][1])) \
+                .sortByKey(ascending=True).collect()
 	print(counts)
