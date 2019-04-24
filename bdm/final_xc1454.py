@@ -97,7 +97,7 @@ def processDrugs(pid, records):
 if __name__ == "__main__": 
 
 	sc = SparkContext()
-	rdd = sc.textFile('tweets.csv')
+	rdd = sc.textFile('hdfs:///tmp/bdm/tweets-100m.csv')
 	counts = rdd.mapPartitionsWithIndex(processDrugs) \
 	            .reduceByKey(lambda x,y: x+y) \
 	            .map(lambda x: (x[0][0], float(x[1])/x[0][1])).collect()
