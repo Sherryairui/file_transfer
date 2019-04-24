@@ -56,9 +56,9 @@ def processDrugs(pid, records):
     import pyproj
     import shapely.geometry as geom
     import re
-    import sys
-    reload(sys)
-    sys.setdefaultencoding('utf-8')
+    # import sys
+    # reload(sys)
+    # sys.setdefaultencoding('utf-8')
     
     proj = pyproj.Proj(init="epsg:2263", preserve_units=True)    
     index, zones = createIndex('500cities_tracts.geojson')  
@@ -93,11 +93,11 @@ def processDrugs(pid, records):
                         zone = findZone(p, index, zones)
                         if zone:
                             yield((zones['plctract10'][zone], zones['plctrpop10'][zone]), 1)
-                            
+
 if __name__ == "__main__": 
 
 	sc = SparkContext()
-	rdd = sc.textFile('hdfs:///dumbo/user/xc1454/file_transfer/bdm/tweets.csv')
+	rdd = sc.textFile('/home/xc1454/file_transfer/bdm/tweets.csv')
 	counts = rdd.mapPartitionsWithIndex(processDrugs) \
 	            .reduceByKey(lambda x,y: x+y) \
 	            .map(lambda x: (x[0][0], float(x[1])/x[0][1])).collect()
