@@ -80,11 +80,13 @@ def processDrugs(pid, records):
 
         if singleDrug.intersection(tweet_set):
             #yield(1,1)
-            
-            p = geom.Point(proj(float(longitude), float(latitude)))
-            zone = findZone(p, index, zones)
-            if zone:
-                yield((zones['plctract10'][zone], zones['plctrpop10'][zone]), 1)
+            try:
+                p = geom.Point(proj(float(longitude), float(latitude)))
+                zone = findZone(p, index, zones)
+                if zone:
+                    yield((zones['plctract10'][zone], zones['plctrpop10'][zone]), 1)
+            except ValueError:
+                pass
         elif tweet_set.intersection(multiDrugFirst):
             #yield(1,1)
             for item in list(tweet_set.intersection(multiDrugFirst)):
@@ -95,6 +97,8 @@ def processDrugs(pid, records):
                             zone = findZone(p, index, zones)
                             if zone:
                                 yield((zones['plctract10'][zone], zones['plctrpop10'][zone]), 1)
+                        except ValueError:
+                            pass
 
 if __name__ == "__main__": 
 
