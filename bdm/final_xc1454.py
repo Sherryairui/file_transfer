@@ -1,9 +1,26 @@
 from pyspark import SparkContext
 
-def readTxt(text_file):
+def readTxt(text_file, singleDrug, multiDrugFirst, multiDrugAll):
+    import string
     text_file = open(text_file, "r")
     drug_word = text_file.read().split('\n')
-    return(drug_word)
+
+    for item in drug_word:
+        item = item.lower()
+        if len(item.split(' ')) == 1:
+            singleDrug.add(item.lower())
+        else:
+            multiDrugFirst.add(item.split(' ')[0])
+            item = [''.join(c for c in s if c not in string.punctuation) for s in item.split(' ')]
+            item = [s.lower() for s in item if s]
+            item_string = ' '.join(e for e in item)
+            if item[0] in multiDrugAll:
+                multiDrugAll[item[0]] += [item_string]
+            else:
+                multiDrugAll[item[0]] = [item_string]
+        
+        
+    return(singleDrug, multiDrugFirst, multiDrugAll)
 
 def createIndex(shapefile):
     import rtree
@@ -22,42 +39,61 @@ def findZone(p, index, zones):
             return idx
     return None
 
+def processTwitter(row):
+    import string
+    
+    latitude = row[1]
+    longitude = row[2]
+    tweet_raw = row[5].encode('ascii', 'ignore').decode('ascii').split(' ')
+    tweet_no_punct = [''.join(c for c in s if c not in string.punctuation) for s in tweet_raw]
+    tweet = [s.lower() for s in tweet_no_punct if s]
+    tweet_set = set(tweet)
+    tweet_string = ' '.join(e for e in tweet_no_punct)
+    return(latitude, longitude, tweet_set, tweet_string)
+
 def processDrugs(pid, records):
     import csv
     import pyproj
     import shapely.geometry as geom
+    import re
     import sys
-    #reload(sys)
-    import importlib
-    importlib.reload(sys)
-
-
-    #sys.setdefaultencoding('utf-8')
+    reload(sys)
+    sys.setdefaultencoding('utf-8')
     
     proj = pyproj.Proj(init="epsg:2263", preserve_units=True)    
     index, zones = createIndex('500cities_tracts.geojson')  
     
-    drug_word_1 = readTxt('drug_illegal.txt')
-    drug_word_2 = readTxt('drug_sched2.txt')
+    singleDrug = set()
+    multiDrugFirst = set()
+    multiDrugAll = {}
     
-    drug_words = drug_word_1+drug_word_2
+    singleDrug, multiDrugFirst, multiDrugAll = readTxt('drug_illegal.txt', singleDrug, multiDrugFirst, multiDrugAll)
+    singleDrug, multiDrugFirst, multiDrugAll = readTxt('drug_sched2.txt', singleDrug, multiDrugFirst, multiDrugAll)
     
     reader = csv.reader(records, delimiter='|')
     
-    for rowList in reader:
+    for row in reader:
         
-        latitude = rowList[1]
-        longitude = rowList[2]
-        tweet = rowList[-1].split(' ')
+        latitude, longitude, tweet_set, tweet_string = processTwitter(row)
         
-        
-        for item in tweet:
-            if item in drug_words:
-                p = geom.Point(proj(float(longitude), float(latitude)))
-                zone = findZone(p, index, zones)
-                if zone:
-                    yield((zones['plctract10'][zone], zones['plctrpop10'][zone]), 1)
+        #yield(tweet_string, 1)
 
+        if singleDrug.intersection(tweet_set):
+            #yield(1,1)
+            p = geom.Point(proj(float(longitude), float(latitude)))
+            zone = findZone(p, index, zones)
+            if zone:
+                yield((zones['plctract10'][zone], zones['plctrpop10'][zone]), 1)
+        elif tweet_set.intersection(multiDrugFirst):
+            #yield(1,1)
+            for item in list(tweet_set.intersection(multiDrugFirst)):
+                for durgString in multiDrugAll[item]:
+                    if re.match(durgString, tweet_string):
+                        p = geom.Point(proj(float(longitude), float(latitude)))
+                        zone = findZone(p, index, zones)
+                        if zone:
+                            yield((zones['plctract10'][zone], zones['plctrpop10'][zone]), 1)
+                            
 if __name__ == "__main__": 
 
 	sc = SparkContext()
