@@ -101,7 +101,7 @@ if __name__ == "__main__":
 	            .reduceByKey(lambda x,y: x+y) \
 	            .map(lambda x: (x[0][0], float(x[1])/x[0][1])) \
                 .sortByKey(ascending=True).map(toCSVLine) \
-                .saveAsTextFile('/home/xc1454/file_transfer/bdm/geo_ratio.csv')
+                .saveAsTextFile('geo_ratio.csv')
 
     #lines = labelsAndPredictions.map(toCSVLine)
     #counts.saveAsTextFile('/home/xc1454/file_transfer/bdm/geo_ratio.csv')
