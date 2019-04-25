@@ -103,7 +103,7 @@ if __name__ == "__main__":
                 .sortByKey(ascending=True).map(toCSVLine)
 
     #lines = labelsAndPredictions.map(toCSVLine)
-    counts.saveAsTextFile('/home/xc1454/file_transfer/bdm/geo_ratio.csv')
+    #counts.saveAsTextFile('/home/xc1454/file_transfer/bdm/geo_ratio.csv')
 
     #for item in counts:
 
