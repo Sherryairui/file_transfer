@@ -58,9 +58,6 @@ def processDrugs(pid, records):
     import pyproj
     import shapely.geometry as geom
     import re
-    # import sys
-    # reload(sys)
-    # sys.setdefaultencoding('utf-8')
     
     proj = pyproj.Proj(init="epsg:2263", preserve_units=True)    
     index, zones = createIndex('500cities_tracts.geojson')  
@@ -77,30 +74,24 @@ def processDrugs(pid, records):
     for row in reader:
         
         latitude, longitude, tweet_set, tweet_string = processTwitter(row)
-        
-        #yield(tweet_string, 1)
 
         if singleDrug.intersection(tweet_set):
-            #yield(1,1)
-            #try:
             p = geom.Point(proj(float(longitude), float(latitude)))
             zone = findZone(p, index, zones)
             if zone:
                 yield((zones['plctract10'][zone], zones['plctrpop10'][zone]), 1)
-            # except ValueError:
-            #     pass
         elif tweet_set.intersection(multiDrugFirst):
-            #yield(1,1)
             for item in list(tweet_set.intersection(multiDrugFirst)):
                 for durgString in multiDrugAll[item]:
                     if re.match(durgString, tweet_string):
-                        #try:
                         p = geom.Point(proj(float(longitude), float(latitude)))
                         zone = findZone(p, index, zones)
                         if zone:
                             yield((zones['plctract10'][zone], zones['plctrpop10'][zone]), 1)
-                        # except ValueError:
-                        #     pass
+
+def toCSVLine(data):
+  return ','.join(str(d) for d in data)
+
 
 if __name__ == "__main__": 
 
@@ -109,8 +100,10 @@ if __name__ == "__main__":
 	counts = rdd.mapPartitionsWithIndex(processDrugs) \
 	            .reduceByKey(lambda x,y: x+y) \
 	            .map(lambda x: (x[0][0], float(x[1])/x[0][1])) \
-                .sortByKey(ascending=True).saveAsTextFile("hdfs:///tmp/bdm/geo_ratio.txt")
-                #.collect()
+                .sortByKey(ascending=True).map(toCSVLine)
+
+    #lines = labelsAndPredictions.map(toCSVLine)
+    lines.saveAsTextFile('/home/xc1454/file_transfer/bdm/geo_ratio.csv')
 
     #for item in counts:
 
