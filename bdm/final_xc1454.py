@@ -96,12 +96,13 @@ def toCSVLine(data):
 if __name__ == "__main__": 
 
 	sc = SparkContext()
-	rdd = sc.textFile('hdfs:///tmp/bdm/tweets-100m.csv')
+	rdd = sc.textFile('tweets.csv')
 	counts = rdd.mapPartitionsWithIndex(processDrugs) \
 	            .reduceByKey(lambda x,y: x+y) \
 	            .map(lambda x: (x[0][0], float(x[1])/x[0][1])) \
                 .sortByKey(ascending=True).map(toCSVLine) \
-                .coalesce(1, True).saveAsTextFile('geo_ratio')
+                .coalesce(1, True).write.format('com.databricks.spark.csv') \
+                .options(header='true').saveAsTextFile('geo_ratio')
 
     #lines = labelsAndPredictions.map(toCSVLine)
     #counts.saveAsTextFile('/home/xc1454/file_transfer/bdm/geo_ratio.csv')
